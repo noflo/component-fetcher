@@ -30,5 +30,8 @@
     "mocha": "~1.9.0",
     "grunt-contrib-watch": "~0.3.1"
   },
-  "keywords": []
+  "keywords": [],
+  "scripts": {
+    "test": "grunt test"
+  }
 }
