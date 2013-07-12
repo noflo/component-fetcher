@@ -19,6 +19,7 @@
   "noflo": {
     "graphs": {
       "GetLibrary": "./graphs/GetLibrary.fbp",
+      "PrepareComponents": "./graphs/PrepareComponents.fbp",
       "WriteComponent": "./graphs/WriteComponent.fbp",
       "WriteLibrary": "./graphs/WriteLibrary.fbp"
     }
