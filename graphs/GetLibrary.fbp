@@ -1,12 +1,12 @@
 EXPORT=REPO.IN:REPOSITORY
 EXPORT=GETPACKAGE.TOKEN:TOKEN
 EXPORT=CLEARGROUPS.OUT:COMPONENTS
+EXPORT=SENDPACKAGE.OUT:PACKAGE
 
 'package.json' -> STRING PackagePath(SendString)
 PackagePath() OUT -> PATH GetPackage(github/GetContents)
 
 Repo(Throttle) OUT -> IN SplitRepo(Split)
-'2' -> MAX Repo()
 GetPackage() LOAD -> LOAD Repo()
 
 SplitRepo(Split) OUT -> REPOSITORY GetPackage()
@@ -17,6 +17,7 @@ RemoveFilename() OUT -> IN ParsePackage(ParseJson)
 'name' -> KEY GroupByLibrary(GroupByObjectKey)
 ParsePackage() OUT -> IN SplitPackage(Split)
 SplitPackage() OUT -> IN GroupByLibrary()
+SplitPackage() OUT -> IN SendPackage(Repeat)
 'noflo' -> KEY GetNoFlo(GetObjectKey)
 GroupByLibrary() OUT -> IN GetNoFlo()
 GetNoFlo() OUT -> IN SplitNoFlo(Split)

@@ -1,0 +1,45 @@
+EXPORT=SPLITLIBRARY.IN:LIBRARY
+EXPORT=DESTINATION.IN:DESTINATION
+EXPORT=GENERATED.OUT:GENERATED
+EXPORT=ERRORS.OUT:ERRORS
+
+# Build filename
+'/' -> DELIMITER FullFilename(CompileString)
+Destination(Split) OUT -> STRING PostPath(SendString)
+SplitLibrary(Split) OUT -> IN PostPath() OUT -> IN FullFilename()
+'name' -> KEY GetLibraryName(GetObjectKey)
+SplitLibrary() OUT -> IN GetLibraryName()
+'2013-07-12-' -> STRING SendDate(SendString)
+'' -> DELIMITER CompileName(CompileString)
+SendDate() OUT -> IN CompileName()
+GetLibraryName() OUT -> IN SplitLibraryName(Split)
+SplitLibraryName() OUT -> IN SendDate()
+SplitLibraryName() OUT -> IN CompileName()
+'.md' -> STRING SendSuffix(SendString)
+SplitLibraryName() OUT -> IN SendSuffix()
+SendSuffix() OUT -> IN CompileName()
+CompileName() OUT -> IN FullFilename()
+
+# Transform post
+'name=title' -> MAP MapMetadata(MapProperty)
+'title' -> ACCEPT FilterMetadata(FilterProperty)
+'author' -> ACCEPT FilterMetadata()
+'description' -> ACCEPT FilterMetadata()
+'version' -> ACCEPT FilterMetadata()
+'layout=library' -> PROPERTY SetLayout(SetProperty)
+SplitLibrary() OUT -> IN MapMetadata()
+MapMetadata() OUT -> IN FilterMetadata()
+FilterMetadata() OUT -> IN SetLayout() OUT -> IN GetMetadata(yaml/ToYaml)
+
+# Merge metadata and contents to a file
+GetMetadata() OUT -> IN SplitMetadata(Split) OUT -> IN BuildContents(Concat)
+'---' -> STRING Separator(SendString)
+SplitLibrary() OUT -> IN Separator() OUT -> IN BuildContents()
+'' -> DATA KickContents(Kick) OUT -> IN BuildContents()
+SplitMetadata() OUT -> IN KickContents()
+BuildContents() OUT -> IN CombineContents(CompileString)
+
+FullFilename() OUT -> FILENAME Save(filesystem/WriteFile)
+CombineContents() OUT -> IN Save()
+Save() OUT -> IN Generated(Merge)
+Save() ERROR -> IN Errors(Merge)

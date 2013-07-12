@@ -18,7 +18,9 @@
   ],
   "noflo": {
     "graphs": {
-      "GetLibrary": "./graphs/GetLibrary.fbp"
+      "GetLibrary": "./graphs/GetLibrary.fbp",
+      "WriteComponent": "./graphs/WriteComponent.fbp",
+      "WriteLibrary": "./graphs/WriteLibrary.fbp"
     }
   },
   "dependencies": {
