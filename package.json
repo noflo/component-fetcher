@@ -1,5 +1,5 @@
 {
-  "name": "component-fetcher",
+  "name": "componentfetcher",
   "description": "NoFlo component fetcher",
   "version": "0.1.0",
   "author": {
@@ -16,6 +16,11 @@
       "url": "undefined/blob/master/LICENSE-MIT"
     }
   ],
+  "noflo": {
+    "graphs": {
+      "GetLibrary": "./graphs/GetLibrary.fbp"
+    }
+  },
   "dependencies": {
     "noflo": "~0.3.3",
     "noflo-github": "0.0.3",
