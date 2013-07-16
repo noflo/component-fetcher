@@ -17,6 +17,9 @@
     }
   ],
   "noflo": {
+    "components": {
+      "BuildFilename": "./components/BuildFilename.coffee"
+    },
     "graphs": {
       "GetLibrary": "./graphs/GetLibrary.fbp",
       "PrepareComponents": "./graphs/PrepareComponents.fbp",
