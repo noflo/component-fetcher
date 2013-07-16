@@ -1,14 +1,9 @@
-EXPORT=READPACKAGE.IN:COMPONENTS
-EXPORT=SETNAME.OUT:COMPONENT
-ReadPackage(ReadGroup) OUT -> IN DropPackage(RemoveGroups)
-DropPackage() OUT -> IN SplitComponents(SplitArray)
-SplitComponents() OUT -> IN SplitComponent(Split)
+EXPORT=COLLECTPACKAGE.IN:COMPONENTS
+EXPORT=FILTER.OUT:COMPONENT
 
-SplitComponent() OUT -> START CreateComponent(CreateObject)
-'library' -> PROPERTY SetLibrary(SetPropertyValue)
-ReadPackage() GROUP -> VALUE SetLibrary()
-CreateComponent() OUT -> IN SetLibrary()
-'title' -> PROPERTY SetName(SetPropertyValue)
-SplitComponent() OUT -> IN ReadComponent(ReadGroup)
-ReadComponent() GROUP -> VALUE SetName()
-SetLibrary() OUT -> IN SetName()
+'1=library' -> MAP Flatten(FlattenObject)
+'0=title' -> MAP Flatten()
+CollectPackage(CollectGroups) OUT -> IN Simplify(SimplifyObject) OUT -> IN Flatten(FlattenObject)
+'library' -> ACCEPT Filter(FilterProperty)
+'title' -> ACCEPT Filter(FilterProperty)
+Flatten() OUT -> IN Filter()
