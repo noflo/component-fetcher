@@ -13,7 +13,7 @@ PostName() OUT -> IN FullFilename()
 # Transform post
 'title' -> ACCEPT FilterMetadata(FilterProperty)
 'library' -> ACCEPT FilterMetadata()
-'layout=library' -> PROPERTY SetLayout(SetProperty)
+'layout=component' -> PROPERTY SetLayout(SetProperty)
 SplitComponent() OUT -> IN FilterMetadata()
 FilterMetadata() OUT -> IN SetLayout() OUT -> IN GetMetadata(yaml/ToYaml)
 
