@@ -29,7 +29,6 @@ BuildContents() OUT -> IN CombineContents(CompileString)
 FullFilename() OUT -> STRING SendFilename(SendString)
 SendFilename() OUT -> FILENAME Save(filesystem/WriteFile)
 CombineContents() OUT -> IN SendContents(Split)
-SendContents() OUT -> IN Show(Output)
 SendContents() OUT -> IN Save()
 SendContents() OUT -> IN SendFilename()
 

@@ -9,7 +9,6 @@ class BuildFilename extends noflo.Component
       out: new noflo.Port
 
     @inPorts.in.on 'data', (component) =>
-      console.log "2013-07-12-#{component.library}-#{component.title}.md"
       @outPorts.out.send "2013-07-12-#{component.library}-#{component.title}.md"
       @outPorts.out.disconnect()
 

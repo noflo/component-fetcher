@@ -1,32 +1,59 @@
 EXPORT=REPO.IN:REPOSITORY
-EXPORT=GETPACKAGE.TOKEN:TOKEN
+EXPORT=SPLITTOKEN.IN:TOKEN
 EXPORT=CLEARCOMPONENTGROUPS.OUT:COMPONENTS
 EXPORT=CLEARGRAPHGROUPS.OUT:GRAPHS
 EXPORT=SENDPACKAGE.OUT:PACKAGE
 
 'package.json' -> STRING PackagePath(SendString)
 PackagePath() OUT -> PATH GetPackage(github/GetContents)
+SplitToken(Split) OUT -> TOKEN GetPackage()
+
+'README.md' -> DATA ReadmePath(Kick)
+ReadmePath() OUT -> IN ClearGroups(RemoveGroups) OUT -> PATH GetReadme(github/GetContents)
+SplitToken(Split) OUT -> TOKEN GetReadme()
 
 Repo(Throttle) OUT -> IN SplitRepo(Split)
+'1' -> MAX Repo()
 GetPackage() LOAD -> LOAD Repo()
 
 SplitRepo(Split) OUT -> REPOSITORY GetPackage()
 SplitRepo() OUT -> IN PackagePath()
-GetPackage() OUT -> IN RemoveFilename(RemoveGroups)
+GetPackage() OUT -> IN RemoveFilename(FirstGroup)
 GetPackage() ERROR -> IN DisplayError(Output)
 RemoveFilename() OUT -> IN ParsePackage(ParseJson)
 'name' -> KEY GroupByLibrary(GroupByObjectKey)
 ParsePackage() OUT -> IN SplitPackage(Split)
+SplitPackage() OUT -> IN RepoName(ReadGroup)
 SplitPackage() OUT -> IN GroupByLibrary()
-SplitPackage() OUT -> IN SendPackage(Repeat)
 'noflo' -> KEY GetNoFlo(GetObjectKey)
 GroupByLibrary() OUT -> IN GetNoFlo()
 GetNoFlo() OUT -> IN SplitNoFlo(Split)
 GetNoFlo() MISSED -> IN DropMissedLibraries(Drop)
+
+RepoName() GROUP -> IN SplitRepoName(Split)
+SplitRepoName() OUT -> REPOSITORY GetReadme()
+SplitRepoName() OUT -> IN ReadmePath()
+GetReadme() ERROR -> IN DisplayError()
+
+SplitPackage() OUT -> IN PackageRepo(FirstGroup)
+GetReadme() OUT -> IN ReadmeRepo(FirstGroup)
+PackageRepo() OUT -> IN Merge(MergeGroups)
+ReadmeRepo() OUT -> IN Merge()
+Merge() OUT -> IN Collect(CollectGroups)
+Collect() OUT -> IN Simplify(SimplifyObject) OUT -> IN Split(SplitArray)
+'0' -> KEY GetMeta(GetObjectKey)
+'1' -> KEY GetPkgReadme(GetObjectKey)
+'readme' -> PROPERTY SetReadme(SetPropertyValue)
+Split() OUT -> IN GetMeta(GetObjectKey) OUT -> IN SetReadme() OUT -> IN SendPackage(Repeat)
+GetMeta() OBJECT -> IN GetPkgReadme() OUT -> VALUE SetReadme()
+
+# Read the components
 'components' -> KEY GetComponents(GetObjectKey)
 SplitNoFlo() OUT -> IN GetComponents()
 GetComponents() OUT -> IN ClearComponentGroups(FirstGroup)
 GetComponents() MISSED -> IN DropMissedComponents(Drop)
+
+# Read the subgraphs
 'graphs' -> KEY GetGraphs(GetObjectKey)
 SplitNoFlo() OUT -> IN GetGraphs()
 GetGraphs() OUT -> IN ClearGraphGroups(FirstGroup)
