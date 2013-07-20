@@ -1,0 +1,40 @@
+'../website/_config.yml' -> IN ReadConfig(filesystem/ReadFile)
+'GITHUB_API_KEY' -> KEY ReadKey(ReadEnv) OUT -> IN SplitToken(Split)
+
+# Get library list from config file
+ReadConfig() OUT -> IN ParseConfig(yaml/ParseYaml)
+'libraries' -> KEY GetLibraries(GetObjectKey)
+ParseConfig() OUT -> IN GetLibraries()
+GetLibraries() OUT -> IN EachLibrary(SplitArray)
+SplitToken() OUT -> TOKEN GetLibrary(componentfetcher/GetLibrary)
+EachLibrary() OUT -> REPOSITORY GetLibrary()
+
+# Write packages as Library posts
+'library/_posts' -> DESTINATION WriteLibrary(componentfetcher/WriteLibrary)
+GetLibrary() PACKAGE -> LIBRARY WriteLibrary()
+WriteLibrary() GENERATED -> IN Generated(Merge)
+WriteLibrary() ERRORS -> IN Errors(Merge)
+
+# Extract individual components
+GetLibrary() COMPONENTS -> COMPONENTS PrepareComponents(componentfetcher/PrepareComponents)
+SplitToken() OUT -> TOKEN PrepareComponents()
+
+# Write components as posts
+'library/components/_posts' -> DESTINATION WriteComponent(componentfetcher/WriteComponent)
+PrepareComponents() COMPONENT -> COMPONENT WriteComponent()
+WriteComponent() GENERATED -> IN Generated(Merge)
+WriteComponent() ERRORS -> IN Errors(Merge)
+
+# Extract individual components
+SplitToken() OUT -> TOKEN PrepareGraphs(componentfetcher/PrepareComponents)
+GetLibrary() GRAPHS -> COMPONENTS PrepareGraphs(componentfetcher/PrepareComponents)
+
+# Write components as posts
+'library/components/_posts' -> DESTINATION WriteGraph(componentfetcher/WriteComponent)
+PrepareGraphs() COMPONENT -> COMPONENT WriteGraph()
+WriteGraph() GENERATED -> IN Generated(Merge)
+WriteGraph() ERRORS -> IN Errors(Merge)
+
+# Output
+Generated() OUT -> IN Display(Output)
+Errors() OUT -> IN DisplayErr(Output)
