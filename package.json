@@ -31,7 +31,8 @@
     "noflo": "~0.3.3",
     "noflo-github": "0.0.4",
     "noflo-yaml": "0.0.3",
-    "noflo-filesystem": "~1.0.0"
+    "noflo-filesystem": "~1.0.0",
+    "noflo-docco": "~0.1.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

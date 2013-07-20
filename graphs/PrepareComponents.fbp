@@ -1,9 +1,63 @@
 EXPORT=COLLECTPACKAGE.IN:COMPONENTS
-EXPORT=FILTER.OUT:COMPONENT
+EXPORT=SPLITTOKEN.IN:TOKEN
+EXPORT=SENDCOMPONENT.OUT:COMPONENT
 
-'1=library' -> MAP Flatten(FlattenObject)
-'0=title' -> MAP Flatten()
+# Prepare the component metadata
+'0=title' -> MAP Flatten(FlattenObject)
+'3=library' -> MAP Flatten()
+'4=repository' -> MAP Flatten()
 CollectPackage(CollectGroups) OUT -> IN Simplify(SimplifyObject) OUT -> IN Flatten(FlattenObject)
+'value=path' -> MAP RenamePath(MapProperty)
 'library' -> ACCEPT Filter(FilterProperty)
 'title' -> ACCEPT Filter(FilterProperty)
-Flatten() OUT -> IN Filter()
+'repository' -> ACCEPT Filter(FilterProperty)
+'path' -> ACCEPT Filter(FilterProperty)
+'path=\.\/=' -> REGEXP FixPath(MapPropertyValue)
+Flatten() OUT -> IN RenamePath() OUT -> IN FixPath() OUT -> IN Filter()
+
+# Normalize grouping to what we need for synchronization
+Filter() OUT -> IN ClearGroups(RemoveGroups)
+'repository' -> KEY GroupByRepo(GroupByObjectKey)
+'path' -> KEY GroupByPath(GroupByObjectKey)
+ClearGroups() OUT -> IN Di(Output) OUT -> IN GroupByRepo() OUT -> IN GroupByPath()
+
+# Fetch source code from GitHub
+SplitToken(Split) OUT -> TOKEN GetSource(github/GetContents)
+GroupByPath() OUT -> IN Throttle(Throttle) OUT -> IN SplitComponent(Split)
+'1' -> MAX Throttle()
+GetSource() LOAD -> LOAD Throttle()
+'repository' -> KEY GetRepo(GetObjectKey)
+SplitComponent() OUT -> IN GetRepo()
+GetRepo() OUT -> REPOSITORY GetSource()
+'path' -> KEY GetPath(GetObjectKey)
+SplitComponent() OUT -> IN GetPath()
+GetPath() OUT -> IN SplitPath(Split)
+SplitPath() OUT -> IN Clean(RemoveGroups) OUT -> PATH GetSource()
+
+# Convert source to Docco
+SplitComponent() OUT -> IN Merge(MergeGroups)
+GetSource() OUT -> SOURCE Document(docco/ParseSource)
+'foo.coffee' -> FILENAME Document()
+'docsText' -> KEY GetDoc(GetObjectKey)
+'false' -> SENDGROUP GetDoc()
+'codeText' -> KEY GetCode(GetObjectKey)
+'false' -> SENDGROUP GetCode()
+Document() OUT -> IN GetDoc()
+GetDoc() OUT -> IN CompileDocument(CompileString)
+'false' -> ONGROUP CompileDocument()
+GetDoc() OBJECT -> IN GetCode()
+'(.*\n)' -> PATTERN IndentCode(Replace)
+'    $1' -> REPLACEMENT IndentCode()
+GetCode() OUT -> IN IndentCode() OUT -> IN CompileDocument()
+CompileDocument() OUT -> IN Merge()
+
+# Normalize to a post-ready format
+GetSource() ERROR -> IN Disp(Output)
+Merge() OUT -> IN Collect(CollectGroups)
+Collect() OUT -> IN SimplifyResult(SimplifyObject)
+SimplifyResult() OUT -> IN SplitResult(SplitArray)
+'0' -> KEY GetMeta(GetObjectKey)
+'1' -> KEY GetSourceData(GetObjectKey)
+'source' -> PROPERTY SetSourceData(SetPropertyValue)
+SplitResult() OUT -> IN GetMeta() OUT -> IN SetSourceData() OUT -> IN SendComponent(Repeat)
+GetMeta() OBJECT -> IN GetSourceData() OUT -> VALUE SetSourceData()

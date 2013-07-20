@@ -50,11 +50,11 @@ GetMeta() OBJECT -> IN GetPkgReadme() OUT -> VALUE SetReadme()
 # Read the components
 'components' -> KEY GetComponents(GetObjectKey)
 SplitNoFlo() OUT -> IN GetComponents()
-GetComponents() OUT -> IN ClearComponentGroups(FirstGroup)
+GetComponents() OUT -> IN ClearComponentGroups(Repeat)
 GetComponents() MISSED -> IN DropMissedComponents(Drop)
 
 # Read the subgraphs
 'graphs' -> KEY GetGraphs(GetObjectKey)
 SplitNoFlo() OUT -> IN GetGraphs()
-GetGraphs() OUT -> IN ClearGraphGroups(FirstGroup)
+GetGraphs() OUT -> IN ClearGraphGroups(Repeat)
 GetGraphs() MISSED -> IN DropMissedGraphs(Drop)
