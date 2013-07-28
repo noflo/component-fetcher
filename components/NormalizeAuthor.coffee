@@ -5,8 +5,12 @@ class NormalizeAuthor extends noflo.Component
     @fallback = 'henri.bergius+noflo@gmail.com'
     @inPorts =
       in: new noflo.Port 'all'
+      email: new noflo.Port 'string'
     @outPorts =
       out: new noflo.Port 'object'
+
+    @inPorts.email.on 'data', (data) =>
+      @fallback = data
 
     @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
@@ -14,7 +18,7 @@ class NormalizeAuthor extends noflo.Component
       if typeof data is 'string'
         matched = data.match(/(.*) <(.*)>/)
         unless matched
-          matched = [data, @fallback]
+          matched = [data, data, @fallback]
         data =
           name: matched[1]
           email: matched[2]
