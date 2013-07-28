@@ -2,6 +2,7 @@ noflo = require 'noflo'
 
 class NormalizeAuthor extends noflo.Component
   constructor: ->
+    @fallback = 'henri.bergius+noflo@gmail.com'
     @inPorts =
       in: new noflo.Port 'all'
     @outPorts =
@@ -12,9 +13,12 @@ class NormalizeAuthor extends noflo.Component
     @inPorts.in.on 'data', (data) =>
       if typeof data is 'string'
         matched = data.match(/(.*) <(.*)>/)
+        unless matched
+          matched = [data, @fallback]
         data =
           name: matched[1]
           email: matched[2]
+      data.email = @fallback unless data.email
       @outPorts.out.send data
     @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
